@@ -1,15 +1,15 @@
--- bootstrap lazy.nvim, LazyVim and your plugins
-require("config.lazy")
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
-require("telescope").setup({
-  defaults = {
-    file_ignore_patterns = {
-      "node_modules",
-      "cdk.out",
-    },
-  },
-})
-
-require("catppuccin").setup()
-
-require("treesitter-context").setup()
+require("options")
+require("lazy").setup("plugins")
