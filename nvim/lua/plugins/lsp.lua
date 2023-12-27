@@ -8,7 +8,7 @@ local masonConfig = {
 		"marksman",
 		"vtsls",
 		"rust_analyzer",
-		"yamlls"
+		"yamlls",
 	}
 }
 
@@ -30,18 +30,10 @@ return {
 		config = function()
 			local lspconfig = require('lspconfig')
 
-			-- Setup default LSPs
-			lspconfig.lua_ls.setup({})
-			lspconfig.vtsls.setup({})
-			lspconfig.astro.setup({})
-			lspconfig.cssls.setup({})
-			lspconfig.html.setup({})
-			lspconfig.jsonls.setup({})
-			lspconfig.lua_ls.setup({})
-			lspconfig.marksman.setup({})
-			lspconfig.vtsls.setup({})
-			lspconfig.rust_analyzer.setup({})
-			lspconfig.yamlls.setup({})
+
+			for _, language in pairs(masonConfig.ensure_installed) do
+				lspconfig[language].setup({})
+			end
 
 			vim.api.nvim_create_autocmd('LspAttach', {
 				group = vim.api.nvim_create_augroup('UserLspConfig', {}),
