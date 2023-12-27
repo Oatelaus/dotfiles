@@ -1,40 +1,3 @@
-function tableFilter(t, predicate)
-  local result = {}
-  for key, value in pairs(t) do
-    if predicate(value, key, t) then
-      table.insert(result, value)
-    end
-  end
-  return result
-end
-
-function tableMap(t, transform)
-  local result = {}
-  for key, value in pairs(t) do
-    result[key] = transform(value, key, t)
-  end
-  return result
-end
-
-
-function tableFind(t, predicate)
-  for key, value in pairs(t) do
-    if predicate(value, key, t) then
-      return value, key
-    end
-  end
-  return nil
-end
-
-function tableFindString(t, searchString)
-  for key, value in pairs(t) do
-    if type(value) == "string" and string.find(value, searchString) then
-      return value, key
-    end
-  end
-  return nil
-end
-
 return {
 	"mfussenegger/nvim-dap",
 	dependencies = {
@@ -86,6 +49,8 @@ return {
 
 		local dap = require('dap')
 
+		local M = require('moses')
+
 		local languages = {
 			'javascript',
 			'javascriptreact',
@@ -94,14 +59,6 @@ return {
 		}
 
 		local configs = {
-			{
-				type = "pwa-node",
-				request = "attach",
-				name = "Attach",
-				processId = require("dap.utils").pick_process,
-				cwd = "${workspaceFolder}",
-				languages = {'javascript', 'javascriptreact', 'typescript', 'typescriptreact'}
-			},
 			{
 				type = "pwa-node",
 				request = "launch",
@@ -121,35 +78,22 @@ return {
 				program = "${file}",
 				cwd = "${workspaceFolder}",
 				sourceMaps = true,
-				languages = { 'javascript', 'javascriptreact', 'typescript', 'typescriptreact' }
-			}
-		}
-
-		dap.configurations.typescript = {
+				languages = { 'javascript', 'javascriptreact' }
+			},
 			{
 				type = "pwa-node",
-				request = "launch",
-				name = "Launch (ESM)",
-				program = "${file}",
+				request = "attach",
+				name = "Attach",
+				processId = require("dap.utils").pick_process,
 				cwd = "${workspaceFolder}",
-				runtimeArgs = {
-					"--loader",
-					"ts-node/esm"
-				},
+				languages = {'javascript', 'javascriptreact', 'typescript', 'typescriptreact'}
 			},
 		}
 
-
-
-
-		for _, language in ipairs({ "javascript", "javascriptreact" }) do
+		for _, language in ipairs(languages) do
 			if not dap.configurations[language] then
-				local languageConfigs = tableFilter(configs, function(config)
-					return tableFindString(config.languages, language) ~= nil
-				end)
-
-				dap.configurations[language] = tableMap(languageConfigs, function(config)
-					return config
+				dap.configurations[language] = M.select(configs, function(config)
+					return M.find(config.languages, language) ~= nil
 				end)
 			end
 		end
