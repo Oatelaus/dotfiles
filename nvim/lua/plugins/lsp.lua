@@ -1,15 +1,36 @@
+local languages = {
+	{
+		language = "cssls"
+	},
+	{
+		language = "html"
+	},
+	{
+		language = "jsonls"
+	},
+	{
+		language = "lua_ls",
+		setup = {
+			settings = {
+				Lua = {
+					diagnostics = {
+						globals = { "vim" }
+					}
+				}
+			}
+		}
+	},
+	{
+		language = "vtsls"
+	},
+	{
+		language = "yamlls"
+	},
+}
+
 local masonConfig = {
-	ensure_installed = {
-		"astro",
-		"cssls",
-		"html",
-		"jsonls",
-		"lua_ls",
-		"marksman",
-		"vtsls",
-		"rust_analyzer",
-		"yamlls",
-	}
+	-- Autofilled by the content of languages and the "language" key.
+	ensure_installed = {}
 }
 
 return {
@@ -22,6 +43,10 @@ return {
 	{
 		"williamboman/mason-lspconfig.nvim",
 		config = function()
+			for _, config in ipairs(languages) do
+				table.insert(masonConfig.ensure_installed, config.language)
+			end
+
 			require("mason-lspconfig").setup(masonConfig)
 		end
 	},
@@ -31,8 +56,8 @@ return {
 			local lspconfig = require('lspconfig')
 
 
-			for _, language in pairs(masonConfig.ensure_installed) do
-				lspconfig[language].setup({})
+			for _, config in pairs(languages) do
+				lspconfig[config.language].setup(config.setup or {})
 			end
 
 			vim.api.nvim_create_autocmd('LspAttach', {
@@ -42,6 +67,7 @@ return {
 					vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, { desc = 'Go to Declaration' })
 					vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, { desc = 'Go to Implementation' })
 					vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, { desc = 'View code actions' })
+					vim.keymap.set('n', 'cS', vim.lsp.buf.rename, { desc = 'Renames a symbol' })
 				end,
 			})
 		end
